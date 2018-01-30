@@ -62,7 +62,8 @@ class Controller_Base extends Controller_Rest
                                  'password' => $decodedToken->password, 
                                  'id_role' => $decodedToken->role,
                                  'email' => $decodedToken->email,
-                                 'id' => $decodedToken->id]]);
+                                 'id' => $decodedToken->id
+                                ]]);
                 if($query != null)
                 {
                     $json = array(
