@@ -8,8 +8,7 @@ return array(
       array(
         0 => '001_Roles',
         1 => '002_Users',
-        2 => '003_Records',
-        3 => '004_Stories',
+        2 => '003_Stories',
       ),
     ),
     'module' => 
