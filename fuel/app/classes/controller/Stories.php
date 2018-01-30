@@ -83,14 +83,6 @@ class Controller_Stories extends Controller_Base
 	 }
     
 
-    
-
-
-
-
-
-
-
 	private function newStory($input, $decodedToken)
     {
     	$story = new Model_Stories();

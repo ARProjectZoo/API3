@@ -9,7 +9,9 @@
 build
 .idea
 nbproject/
-
+fuel/.DS_Store
+fuel/app/.DS_Store
+fuel/app/classes/.DS_Store
 # hidden files created by Windows
 Thumbs.db
 desktop.ini

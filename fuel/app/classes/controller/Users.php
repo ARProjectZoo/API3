@@ -129,6 +129,7 @@ class Controller_Users extends Controller_Base
 	                    'code' => 200,
 	                    'message' => 'Log In correcto',
 	                    'token' => $token
+	                    
 	                    ));
 	                return $json; 
 	        	}else{
