@@ -28,7 +28,8 @@ class Stories
             'on_update' => 'CASCADE',
             'on_delete' => 'RESTRICT'
             ))
-        );    
+        );
+           
     }
 
     function down()

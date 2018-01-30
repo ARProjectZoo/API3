@@ -12,26 +12,60 @@ class Controller_Stories extends Controller_Base
     		 $decodedToken = JWT::decode($arrayAuthenticated["data"], MY_KEY, array('HS256'));
     		
 	        try {
-	            if ( !isset($_POST['photo']) || !isset($_POST['comment']) || !isset($_POST['date'])) 
-	            {
-	                $json = $this->response(array(
-	                    'code' => 400,
-	                    'message' => 'Algun paramentro esta vacio'
-	                ));
-	                return $json;
-	            }
-	            if ( !empty($_POST['photo']) && !empty($_POST['comment']) && !empty($_POST['date'])){
-					$input = $_POST;
+		        	if ( !isset($_POST['photo']) || empty($_POST['photo'])) 
+		            {
+		                $json = $this->response(array(
+		                    'code' => 400,
+		                    'message' => 'Algun paramentro esta vacio'
+		                ));
+		                return $json;
+		            }
+		            if(!isset($_POST['comment']) || empty($_POST['comment'])){
+		            	$json = $this->response(array(
+		                    'code' => 400,
+		                    'message' => 'El comment esta vacio'
+		                ));
+		                return $json;
+		            }
+		            if( !isset($_POST['date']) || empty($_POST['date'])){
+		            	$json = $this->response(array(
+		                    'code' => 400,
+		                    'message' => 'El date esta vacio'
+		                ));
+		                return $json;
+					}
+	        	 $config = array(
+			            'path' => DOCROOT . 'assets/img',
+			            'randomize' => true,
+			            'ext_whitelist' => array('img', 'jpg', 'jpeg', 'gif', 'png'),
+			        );
+
+			        Upload::process($config);
+
+			        if (Upload::is_valid())
+			        {
+			            Upload::save();
+			            foreach(Upload::get_files() as $file)
+			            {
+			            	$story->photo = 'http://' . $_SERVER['SERVER_NAME'] . '/APIZoo/public/assets/img/'
+			            	. $file['saved_as'];
+			            }
+			        }
+			        foreach (Upload::get_errors() as $file)
+			        {
+			            return $this->response(array(
+			                'code' => 500,
+			            ));
+			        }
+			        return $this->response(array(
+			            'code' => 200,
+			        ));
+			    
+	            	$input = $_POST;
 		            $newStory = $this->newStory($input, $decodedToken);
 		           	$json = $this->saveStory($newStory);
 		            return $json;
-		        }else{
-		        	$json = $this->response(array(
-	                    'code' => 400,
-	                    'message' => 'Algun campo vacio'
-	                ));
-	                return $json;
-		        }
+		        
 	        }catch (Exception $e){
 	            $json = $this->response(array(
 	                'code' => 500,
@@ -47,6 +81,15 @@ class Controller_Stories extends Controller_Base
 			return $json;
      	}
 	 }
+    
+
+    
+
+
+
+
+
+
 
 	private function newStory($input, $decodedToken)
     {
