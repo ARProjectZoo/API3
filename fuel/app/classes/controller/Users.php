@@ -139,12 +139,7 @@ class Controller_Users extends Controller_Base
 	                $json = $this->response(array(
 	                    'code' => 200,
 	                    'message' => 'Log In correcto',
-<<<<<<< HEAD
-	                    'token' => $token
-	                    
-=======
 	                    'data' => $arrayData
->>>>>>> 4bfa4997f7c180737bab54769e46fdbb6b473ebb
 	                    ));
 	                return $json; 
 	        	}else{

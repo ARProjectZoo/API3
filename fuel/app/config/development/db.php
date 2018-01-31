@@ -6,7 +6,7 @@
 return array(
 	'default' => array(
 		'connection'  => array(
-			'dsn'        => 'mysql:host=localhost:8889;dbname=ARZOO',
+			'dsn'        => 'mysql:host=localhost:8889;dbname=ARZOOFIRST',
 			'username'   => 'root',
 			'password'   => 'root',
 		),

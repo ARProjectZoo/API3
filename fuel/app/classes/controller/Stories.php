@@ -12,11 +12,11 @@ class Controller_Stories extends Controller_Base
     		 $decodedToken = JWT::decode($arrayAuthenticated["data"], MY_KEY, array('HS256'));
     		
 	        try {
-		        	if ( !isset($_POST['photo']) || empty($_POST['photo'])) 
+		        	if (!isset($_POST['photo']) || empty($_POST['photo'])) 
 		            {
 		                $json = $this->response(array(
 		                    'code' => 400,
-		                    'message' => 'Algun paramentro esta vacio'
+		                    'message' => 'La photo esta vacia'
 		                ));
 		                return $json;
 		            }
