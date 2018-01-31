@@ -123,7 +123,6 @@ class Controller_Users extends Controller_Base
 		            							)
 		            						)
 		            					);
-	            
 	            if(!empty($user))
 	            {
 	            	$user = reset($user);
@@ -314,6 +313,7 @@ class Controller_Users extends Controller_Base
 	    		if(!empty($user))
 	    		{
 	    			return $this->respuesta(200, 'info User', Arr::reindex($user));
+
 	    		}else{
 	    			
 	    			$json = $this->response(array(
@@ -333,6 +333,69 @@ class Controller_Users extends Controller_Base
 			       		 	return $json;
     		}
     }
+    public function post_changeImage()
+    {
+    	$authenticated = $this->authenticate();
+    	$arrayAuthenticated = json_decode($authenticated, true);
+    
+    	 if($arrayAuthenticated['authenticated']){
+	    		$decodedToken = JWT::decode($arrayAuthenticated["data"], MY_KEY, array('HS256'));
+	    		$user = Model_Users::find('all', 	array('where' => array(
+			            							array('id', '=', $decodedToken->id), 
+			            							)
+			            						)
+			            					);  		
+	        try {
+		        	if (!isset($_FILES['profilePicture']) || empty($_FILES['profilePicture'])) 
+		            {
+		                $json = $this->response(array(
+		                    'code' => 400,
+		                    'message' => 'La photo esta vacia'
+		                ));
+		                return $json;
+		            }
+	        	 	$config = array(
+			            'path' => DOCROOT . 'assets/img',
+			            'randomize' => true,
+			            'ext_whitelist' => array('img', 'jpg', 'jpeg', 'gif', 'png'),
+			        );
+
+			        Upload::process($config);
+
+			        if (Upload::is_valid())
+			        {
+			            Upload::save();
+			            foreach(Upload::get_files() as $file)
+			            {
+			            	$_POST['profilePicture'] = 'http://' . $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'] . '/APIZoo/fuelphp/public/assets/img/'
+			            	. $file['saved_as'];
+			            }
+			        }
+
+			        foreach (Upload::get_errors() as $file)
+			        {
+			            return $this->response(array(
+			                'code' => 500,
+			            ));
+			        }
+			    
+		         //FALTA AQUI GUARDAR LOS CAMBIOS DEL PICTURE PROFILE DEL USER. Y EL MENSAJE 200
+		        
+	        }catch (Exception $e){
+	            $json = $this->response(array(
+	                'code' => 500,
+	                'message' =>  $e->getMessage()
+	            ));
+	            return $json;
+	        }      
+    	 }else{
+			$json = $this->response(array(
+				                'code' => 401,
+				                'message' =>  "No autenticado"
+				            ));
+			return $json;
+     	}
+	 }
 }
 
 

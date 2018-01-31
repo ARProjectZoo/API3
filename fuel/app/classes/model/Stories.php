@@ -8,7 +8,7 @@ class Model_Stories extends Orm\Model
     ('id' => array('data_type'=>'int'), // both validation & typing observers will ignore the PK
      'photo' => array(
             'data_type' => 'varchar',
-            'validation' => array('required', 'max_length' => array(100))
+            'validation' => array('required', 'max_length' => array(400))
         ),
      'comment' => array(
                 'data_type' => 'varchar',
