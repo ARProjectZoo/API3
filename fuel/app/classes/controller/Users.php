@@ -6,6 +6,33 @@ class Controller_Users extends Controller_Base
     private  $idAdmin = 1;
     private  $idUser = 2;
 
+    public function post_register()
+    {
+        try {
+            if ( !isset($_POST['userName']) || !isset($_POST['password']) || !isset($_POST['email'])) 
+            {
+            	return $this->respuesta(400, 'Algun paramentro esta vacio', '');
+            }if(isset($_POST['x']) || isset($_POST['y'])){
+            		if(empty($_POST['x']) || empty($_POST['y'])){
+	            		return $this->respuesta(400, 'Coordenadas vacias', '');
+	            	}
+            	}else{
+            		return $this->respuesta(400, 'Coordenadas no definidas', '');
+            	}
+            if(!empty($_POST['userName']) && !empty($_POST['password']) && !empty($_POST['email'])){
+            	if(strlen($_POST['password']) < 5){
+            		return $this->respuesta(400, 'La contraseña debe tener al menos 5 caracteres', '');
+            	}
+				$input = $_POST;
+	            $newUser = $this->newUser($input);
+	           	$json = $this->saveUser($newUser);
+	        }else{
+	        	return $this->respuesta(400, 'Algun campo vacio', '');
+	        }
+        }catch (Exception $e){
+        	return $this->respuesta(500, $e->getMessage(), '');
+        }      
+    }
     private function newUser($input)
     {
     		$user = new Model_Users();
@@ -30,90 +57,18 @@ class Controller_Users extends Controller_Base
     	if(empty($userExists)){
     		$userToSave = $user;
     		$userToSave->save();
-    		$json = $this->response(array(
-                    'code' => 201,
-                    'message' => 'Usuario creado',
-                    'data' => $user->userName
-                ));
-    		return $json;
+    		$arrayData = array();
+    		$arrayData['userName'] = $user->userName;
+    		return $this->respuesta(201, 'Usuario creado', $arrayData);
     	}else{
-    		$json = $this->response(array(
-                    'code' => 204,
-                    'message' => 'Usuario ya registrado',
-                    'data' => ''
-                ));
-    		return $json;
+    		return $this->respuesta(204, 'Usuario ya registrado', '');
     	}
-    }
-
-    public function post_register()
-    {
-        try {
-            if ( !isset($_POST['userName']) || !isset($_POST['password']) || !isset($_POST['email'])) 
-            {
-                $json = $this->response(array(
-                    'code' => 400,
-                    'message' => 'Algun paramentro esta vacio',
-                    'data' => ''
-                )); 
-                return $json;
-            }if(isset($_POST['x']) || isset($_POST['y'])){
-            		if(empty($_POST['x']) || empty($_POST['y'])){
-	            		$json = $this->response(array(
-	                    'code' => 400,
-	                    'message' => 'Coordenadas vacias',
-	                    'data' => ''
-	                	));
-	                	return $json;
-	                }
-            	}else{
-            		$json = $this->response(array(
-	                    'code' => 400,
-	                    'message' => 'Coordenadas no definidas',
-	                    'data' => ''
-	                	));
-	                	return $json;
-            	}
-            if(!empty($_POST['userName']) && !empty($_POST['password']) && !empty($_POST['email'])){
-            	if(strlen($_POST['password']) < 5){
-            		$json = $this->response(array(
-                    'code' => 400,
-                    'message' => 'La contraseña debe tener al menos 5 caracteres',
-                    'data' => ''
-                ));
-                return $json;
-            	}
-				$input = $_POST;
-	            $newUser = $this->newUser($input);
-	           	$json = $this->saveUser($newUser);
-	            return $json;
-	        }else{
-	        	$json = $this->response(array(
-                    'code' => 400,
-                    'message' => 'Algun campo vacio',
-                     'data' => ''
-                ));
-                return $json;
-	        }
-        }catch (Exception $e){
-            $json = $this->response(array(
-                'code' => 500,
-                'message' =>  $e->getMessage(),
-                 'data' => ''
-            ));
-            return $json;
-        }      
     }
 
     public function post_login()
     {	try{
 	        if ( !isset($_POST['userName']) || !isset($_POST['password']) ) {
-	            $json = $this->response(array(
-	                    'code' => 400,
-	                    'message' => 'alguno de los datos esta vacio',
-	                     'data' => ''
-	                ));
-	                return $json;
+	        	return $this->respuesta(400, 'alguno de los datos esta vacio', '');
 	        }else if( !empty($_POST['userName']) && !empty($_POST['password'])){
 	            $input = $_POST;
 	            $user = Model_Users::find('all', 
@@ -134,37 +89,17 @@ class Controller_Users extends Controller_Base
 	                $token = $this->encodeToken($userName, $password, $id, $email, $id_role);
 	                $arrayData = array();
 	               	$arrayData['token'] = $token;
-	               	$arrayData['data'] = '';
-	                $json = $this->response(array(
-	                    'code' => 200,
-	                    'message' => 'Log In correcto',
-	                    'data' => $arrayData
-	                    ));
-	                return $json; 
+	               	return $this->respuesta(200, 'Log In correcto', $arrayData);
 	        	}else{
-	        		$json = $this->response(array(
-	                    'code' => 400,
-	                    'message' => 'Algun dato erroneo',
-	                     'data' => ''
-	                ));
-	                return $json;
-	            	}
+	        		return $this->respuesta(400, 'algun dato erroneo', '');
+	       		 }
+	     
 	        }else{
-	        	$json = $this->response(array(
-	                'code' => 400,
-	                'message' => 'No se permiten cadenas de texto vacias',
-	                 'data' => ''
-	            ));
-	            return $json;
-          	}
+	        	return $this->respuesta(400, 'No se permiten cadenas de texto vacias', '');
+	        }
 	        	
 	    }catch(Exception $e){
-	    	$json = $this->response(array(
-	            'code' => 500,
-	            'message' =>  $e->getMessage(),
-	             'data' => ''
-            ));
-            return $json;
+	    	return $this->respuesta(500, $e->getMessage(), '');
 	    }
 	}
 	
@@ -173,12 +108,7 @@ class Controller_Users extends Controller_Base
 		try{
 			$input = $_POST;
 			if ( !isset($_POST['userName']) || !isset($_POST['email']) ) {
-	            $json = $this->response(array(
-	                    'code' => 400,
-	                    'message' => 'alguno de los datos esta vacio',
-	                     'data' => ''
-	                ));
-	                return $json;
+				return $this->respuesta(400, 'alguno de los datos esta vacio', '');
 	        }else if( !empty($_POST['userName']) && !empty($_POST['email'])){
 		    	$user = Model_Users::find('all', 
 		           					array('where' => array(
@@ -187,37 +117,24 @@ class Controller_Users extends Controller_Base
 		           							)
 		           						)
 		           					);
-		    if($user != null){
-		   		   	$user = reset($user);
-	            	$userName = $user->userName;
-	            	$password = $user->password;
-	            	$id = $user->id;
-	            	$email = $user->email;
-	            	$id_role = $user->id_role;
-	                $token = $this->encodeToken($userName, $password, $id, $email, $id_role);
-	                $json = $this->response(array(
-	                    'code' => 200,
-	                    'message' => 'Log In correcto',
-	                    'data' => $token
-	                    ));
-	                return $json; 
-		    }else{
-		    	 $json = $this->response(array(
-		                    'code' => 400,
-		                    'message' => 'Usuario no encontrado.',
-		                    'data' => $token
-		                    ));
-		                return $json;
-		    	}
+			    if($user != null){
+			   		   	$user = reset($user);
+		            	$userName = $user->userName;
+		            	$password = $user->password;
+		            	$id = $user->id;
+		            	$email = $user->email;
+		            	$id_role = $user->id_role;
+		                $token = $this->encodeToken($userName, $password, $id, $email, $id_role);
+		                $arrayData = array();
+		               	$arrayData['token'] = $token;
+		               	return $this->respuesta(200, 'forgot correcto', $arrayData);
+			    }else{
+			    	return $this->respuesta(400, 'Usuario no encontrado.', '');
+			    }
 			}
 		}catch(Exception $e){
-		    		 $json = $this->response(array(
-		                'code' => 500,
-		                'message' =>  $e->getMessage(),
-		                 'data' => ''
-		            ));
-		            return $json;
-		    	}
+			return $this->respuesta(500, $e->getMessage(), '');
+		}
 	}
 
 	public function post_changePassword()
@@ -250,50 +167,23 @@ class Controller_Users extends Controller_Base
 				            	$id_role = $userTochange->id_role;
 
 							$token = $this->encodeToken($userName, $password, $id, $email, $id_role);
-							$json = $this->response(array(
-					                    'code' => 200,
-					                    'message' => 'Contraseña modificada correctamente',
-					                    'data' => $token
-					                    ));
-					                return $json;
-					            }else{
-					            	$json = $this->response(array(
-					                    'code' => 200,
-					                    'message' => 'Contraseña demasiado corta',
-					                    'data' => ""
-					                    ));
-					                return $json;
-					            }
+							$arrayData = array();
+			               	$arrayData['token'] = $token;
+			               	return $this->respuesta(200, 'Contraseña modificada correctamente', $arrayData);
+					    }else{
+					    	return $this->respuesta(204, 'Contraseña demasiado corta', "");
+					    }
 				    }else{
-				        $json = $this->response(array(
-				            'code' => 400,
-				            'message' => 'Contraseña vacia',
-				             'data' => ''
-				        ));
+				    	return $this->respuesta(400, 'Contraseña vacios', "");
 				        }
 				}else{
-					$json = $this->response(array(
-				                    'code' => 400,
-				                    'message' => 'Campos vacios',
-				                    'data' => ""
-				                    ));
-				                return $json;
+					return $this->respuesta(400, 'Campos vacios', "");
 				}
 			}else{
-				$json = $this->response(array(
-				                    'code' => 400,
-				                    'message' => 'password vacia, por favor rellenela',
-				                    'data' => ""
-				                    ));
-				                return $json;
+				return $this->respuesta(400, 'parametro no definido', "");
 			}
 		}else{
-			$json = $this->response(array(
-				                    'code' => 400,
-				                    'message' => 'NO AUTORIZADO',
-				                    'data' => ""
-				                    ));
-				                return $json;
+			return $this->respuesta(400, 'NO AUTORIZADO', "");
 		}
 
 	}
@@ -304,33 +194,21 @@ class Controller_Users extends Controller_Base
     	
     	 if($arrayAuthenticated['authenticated']){
 	    		$decodedToken = JWT::decode($arrayAuthenticated["data"], MY_KEY, array('HS256'));
-	    		$user = Model_Users::find('all', 	array('where' => array(
-			            							array('id', '=', $decodedToken->id), 
-			            							)
-			            						)
-			            					);
-	    	
-	    		if(!empty($user))
-	    		{
-	    			return $this->respuesta(200, 'info User', Arr::reindex($user));
-
-	    		}else{
-	    			
-	    			$json = $this->response(array(
-				       		     'code' => 202,
-				       		     'message' => 'Usuario no encontrado',
-				       		    	'data' => ''
-				       		 	));
-				       		 	return $json;
-	    			}
-    		}else{
-    			
-    			$json = $this->response(array(
-			       		     'code' => 401,
-			       		     'message' => 'NO AUTORIZACION',
-			       		    	'data' => ''
-			       		 	));
-			       		 	return $json;
+	    		//Model_Users::find($decodedToken->id);
+	    		
+	    		// if(!empty($user))
+	    		// {
+	    			//reset($user);
+	    			$arrayData = array();
+	    			$arrayData['userName'] = $decodedToken->userName;
+	    			//$arrayData['userName'] = $decodedToken->userName;
+	    			//$arrayData['']
+	    			return $this->respuesta(200, 'info User', $arrayData);
+				// }else{
+	   //  			return $this->respuesta(202, 'Usuario no encontrado','');
+    	//	}
+    	}else{
+    			return $this->respuesta(401, 'NO AUTORIZACION','');
     		}
     }
     public function post_changeImage()
@@ -348,11 +226,7 @@ class Controller_Users extends Controller_Base
 	        try {
 		        	if (!isset($_FILES['profilePicture']) || empty($_FILES['profilePicture'])) 
 		            {
-		                $json = $this->response(array(
-		                    'code' => 400,
-		                    'message' => 'La photo esta vacia'
-		                ));
-		                return $json;
+		            	return $this->respuesta(401, 'La photo esta vacia','');
 		            }
 	        	 	$config = array(
 			            'path' => DOCROOT . 'assets/img',
@@ -374,26 +248,16 @@ class Controller_Users extends Controller_Base
 
 			        foreach (Upload::get_errors() as $file)
 			        {
-			            return $this->response(array(
-			                'code' => 500,
-			            ));
+			            return $this->respuesta(500, 'error en la subida','');
 			        }
 			    
 		         //FALTA AQUI GUARDAR LOS CAMBIOS DEL PICTURE PROFILE DEL USER. Y EL MENSAJE 200
 		        
 	        }catch (Exception $e){
-	            $json = $this->response(array(
-	                'code' => 500,
-	                'message' =>  $e->getMessage()
-	            ));
-	            return $json;
-	        }      
+	        	return $this->respuesta(500, $e->getMessage(),'');
+			}      
     	 }else{
-			$json = $this->response(array(
-				                'code' => 401,
-				                'message' =>  "No autenticado"
-				            ));
-			return $json;
+    	 	return $this->respuesta(401, 'No autenticado','');
      	}
 	 }
 }

@@ -1,0 +1,324 @@
+//
+//  Requests.swift
+//  ReproductorMusicaJulio
+//
+//  Created by Kike on 31/1/18.
+//  Copyright © 2018 julio. All rights reserved.
+//
+
+import Foundation
+import Alamofire
+import UIKit
+let mainURL = "http://localhost:8888/ARAPI/public"
+class ZooRequest {
+    
+    let view : UIViewController
+    let myActivityIndicator : UIActivityIndicatorView
+    let headers : HTTPHeaders
+    init(view : UIViewController, myActivityIndicator : UIActivityIndicatorView) {
+        self.headers = [
+            "Authorization": UserDefaults.standard.string(forKey: "token")!,
+            "Accept": "application/json"
+        ]
+        self.myActivityIndicator = myActivityIndicator
+        self.view = view
+    }
+//func requestsToApi(typeOfRequest : String, parameters : Parameters, view : UIViewController, myActivityIndicator : UIActivityIndicatorView)
+//{
+//    var finalURL = mainURL
+//    let headers: HTTPHeaders = [
+//        "Authorization": UserDefaults.standard.string(forKey: "token")!,
+//        "Accept": "application/json"
+//    ]
+//    switch(typeOfRequest){
+//    case "LogIn":
+//        finalURL += "/Users/login.json"
+//        logIn(urlToAttack : finalURL, headers: headers, parameters: parameters, view: view, myActivityIndicator : myActivityIndicator)
+//        break
+//
+//    case "Register":
+//         finalURL += "/Users/register.json"
+//         register(urlToAttack: finalURL, headers: headers, parameters: parameters, view: view, myActivityIndicator: myActivityIndicator)
+//        break
+//
+//    case "ForgotPassword":
+//        finalURL += "/Users/forgotPassword.json"
+//        forgotPassword(urlToAttack: finalURL, headers: headers, parameters: parameters, view: view, myActivityIndicator: myActivityIndicator)
+//        break
+//
+//    case "ChangePassword":
+//        finalURL += "/Users/changePassword.json"
+//        register(urlToAttack: finalURL, headers: headers, parameters: parameters, view: view, myActivityIndicator: myActivityIndicator)
+//        break
+//
+//    case "InfoUser":
+//        finalURL += "/Users/show.json"
+//        register(urlToAttack: finalURL, headers: headers, parameters: parameters, view: view, myActivityIndicator: myActivityIndicator)
+//        break
+//
+//    case "ShowStories":
+//        finalURL += "/Stories/show.json"
+//        register(urlToAttack: finalURL, headers: headers, parameters: parameters, view: view, myActivityIndicator: myActivityIndicator)
+//        break
+//
+//    case "CreateStory":
+//        finalURL += "/Stories/show.json"
+//        register(urlToAttack: finalURL, headers: headers, parameters: parameters, view: view, myActivityIndicator: myActivityIndicator)
+//        break
+//
+//    case "DeleteStory":
+//        finalURL += "/Stories/delete.json"
+//        register(urlToAttack: finalURL, headers: headers, parameters: parameters, view: view, myActivityIndicator: myActivityIndicator)
+//        break
+//    case "changeProfilePic":
+//        finalURL += "/Users/changeImage.json"
+//        register(urlToAttack: finalURL, headers: headers, parameters: parameters, view: view, myActivityIndicator: myActivityIndicator)
+//        break
+//    default:
+//        break
+//
+//    }
+//}
+
+    public func logIn(parameters : Parameters){
+        
+        let urlRequest = mainURL + "/Users/login.json"
+        
+        Alamofire.request(urlRequest, method : .post, parameters : parameters, headers : self.headers).responseJSON { response in
+            debugPrint(response)
+            if let json = response.result.value {
+                let data = Responses(json: (json as! NSDictionary) as! [String : Any])
+                removeActivityIndicator(activityIndicator: self.myActivityIndicator)
+                switch(data.code){
+                case 200:
+                    let recivedData = data.data as! NSDictionary
+                     print(recivedData)
+                    UserDefaults.standard.set(recivedData["token"] as! String, forKey: "token")
+                     DispatchQueue.main.async {
+                             let storyboard: UIStoryboard =   UIStoryboard (name: "Main", bundle: nil)
+                             let vc: UIViewController = storyboard.instantiateViewController(withIdentifier: "mainAPP") as UIViewController
+                             self.view.present(vc ,animated: true, completion: nil )
+                         }
+                    break
+                case 400:
+                    print("API ::: \(data.message)")
+                    break
+                default:
+                    break
+                }
+               
+            }
+        }
+    }
+    public func register(parameters : Parameters){
+        let urlRequest = mainURL + "/Users/register.json"
+        Alamofire.request(urlRequest, method : .post, parameters : parameters, headers : self.headers).responseJSON { response in
+            debugPrint(response)
+            
+            if let json = response.result.value {
+                let data = Responses(json: (json as! NSDictionary) as! [String : Any])
+                removeActivityIndicator(activityIndicator: self.myActivityIndicator)
+                switch(data.code){
+                case 200:
+                    let recivedData = data.data as! NSDictionary
+                    print(recivedData)
+                    DispatchQueue.main.async {
+                        let storyboard: UIStoryboard =   UIStoryboard (name: "Main", bundle: nil)
+                        let vc: UIViewController = storyboard.instantiateViewController(withIdentifier: "mainLogIn") as UIViewController
+                        self.view.present(vc ,animated: true, completion: nil )
+                    }
+                    break
+                case 400:
+                    print("API ::: \(data.message)")
+                    break
+                default:
+                    break
+                }
+                
+            }
+        }
+    }
+    public func forgotPassword(parameters : Parameters){
+        let urlRequest = mainURL + "/Users/forgotPassword.json"
+        Alamofire.request(urlRequest, method : .post, parameters : parameters, headers : self.headers).responseJSON { response in
+            debugPrint(response)
+            if let json = response.result.value {
+                let data = Responses(json: (json as! NSDictionary) as! [String : Any])
+                removeActivityIndicator(activityIndicator: self.myActivityIndicator)
+                switch(data.code){
+                case 200:
+                    let recivedData = (data.data as! Dictionary<String,Any>)
+                    print(recivedData)
+                    UserDefaults.standard.set(recivedData["token"] as! String, forKey: "token")
+                    DispatchQueue.main.async {
+                        let storyboard: UIStoryboard =   UIStoryboard (name: "Main", bundle: nil)
+                        let vc: UIViewController = storyboard.instantiateViewController(withIdentifier: "changePassword") as UIViewController
+                        self.view.present(vc ,animated: true, completion: nil )
+                        }
+                    
+                    break
+                case 400...500:
+                    print("API ::: \(data.message)")
+                    break
+                default:
+                    break
+                }
+            }
+        }
+    }
+    public func changePassword(parameters : Parameters){
+        let urlRequest = mainURL + "/Users/changePassword.json"
+        Alamofire.request(urlRequest, method : .post, parameters : parameters, headers : self.headers).responseJSON { response in
+            debugPrint(response)
+            if let json = response.result.value {
+                let data = Responses(json: (json as! NSDictionary) as! [String : Any])
+                removeActivityIndicator(activityIndicator: self.myActivityIndicator)
+                switch(data.code){
+                case 200:
+                    let recivedData = data.data as! NSDictionary
+                    print(recivedData)
+                    DispatchQueue.main.async {
+                         let storyboard: UIStoryboard =   UIStoryboard (name: "Main", bundle: nil)
+                         let vc: UIViewController = storyboard.instantiateViewController(withIdentifier: "mainLogIn") as UIViewController
+                         self.view.present(vc ,animated: true, completion: nil )
+                    }
+                    break
+                case 400:
+                    print("API ::: \(data.message)")
+                    break
+                default:
+                    break
+                }
+                
+            }
+        }
+    }
+    public func infoUser(nameLabel : UILabel){
+        let urlRequest = mainURL + "/Users/show.json"
+        Alamofire.request(urlRequest, method : .get, headers : self.headers).responseJSON { response in
+            debugPrint(response)
+            if let json = response.result.value {
+                let data = Responses(json: (json as! NSDictionary) as! [String : Any])
+                removeActivityIndicator(activityIndicator: self.myActivityIndicator)
+                switch(data.code){
+                case 200:
+                    let recivedData = data.data as! NSDictionary
+                    userLogged = User(userName: recivedData["userName"] as! String)
+                    nameLabel.text = userLogged.userName
+                    break
+                case 400:
+                    print("API ::: \(data.message)")
+                    break
+                default:
+                    break
+                }
+                
+            }
+        }
+    }
+    private func showStories(parameters : Parameters){
+        let urlRequest = mainURL + "/Users/register.json"
+        Alamofire.request(urlRequest, method : .post, parameters : parameters, headers : self.headers).responseJSON { response in
+            debugPrint(response)
+            if let json = response.result.value {
+                let data = Responses(json: (json as! NSDictionary) as! [String : Any])
+                removeActivityIndicator(activityIndicator: self.myActivityIndicator)
+                switch(data.code){
+                case 200:
+                    let recivedData = data.data as! NSDictionary
+                    print(recivedData)
+                    DispatchQueue.main.async {
+                        let storyboard: UIStoryboard =   UIStoryboard (name: "Main", bundle: nil)
+                        let vc: UIViewController = storyboard.instantiateViewController(withIdentifier: "mainAPP") as UIViewController
+                        self.view.present(vc ,animated: true, completion: nil )
+                    }
+                    break
+                case 400:
+                    print("API ::: \(data.message)")
+                    break
+                default:
+                    break
+                }
+            }
+        }
+    }
+    private func createStories(parameters : Parameters){
+        let urlRequest = mainURL + "/Users/register.json"
+        Alamofire.request(urlRequest, method : .post, parameters : parameters, headers : self.headers).responseJSON { response in
+            debugPrint(response)
+            if let json = response.result.value {
+                let data = Responses(json: (json as! NSDictionary) as! [String : Any])
+                removeActivityIndicator(activityIndicator: self.myActivityIndicator)
+                switch(data.code){
+                case 200:
+                    let recivedData = data.data as! NSDictionary
+                    print(recivedData)
+                    DispatchQueue.main.async {
+                        let storyboard: UIStoryboard =   UIStoryboard (name: "Main", bundle: nil)
+                        let vc: UIViewController = storyboard.instantiateViewController(withIdentifier: "mainAPP") as UIViewController
+                        self.view.present(vc ,animated: true, completion: nil )
+                    }
+                    break
+                case 400:
+                    print("API ::: \(data.message)")
+                    break
+                default:
+                    break
+                }
+            }
+        }
+    }
+    private func deleteStories(parameters : Parameters){
+        let urlRequest = mainURL + "/Users/register.json"
+        Alamofire.request(urlRequest, method : .post, parameters : parameters, headers : self.headers).responseJSON { response in
+            debugPrint(response)
+            if let json = response.result.value {
+                let data = Responses(json: (json as! NSDictionary) as! [String : Any])
+                removeActivityIndicator(activityIndicator: self.myActivityIndicator)
+                switch(data.code){
+                case 200:
+                    let recivedData = data.data as! NSDictionary
+                    print(recivedData)
+                    DispatchQueue.main.async {
+                        let storyboard: UIStoryboard =   UIStoryboard (name: "Main", bundle: nil)
+                        let vc: UIViewController = storyboard.instantiateViewController(withIdentifier: "mainAPP") as UIViewController
+                        self.view.present(vc ,animated: true, completion: nil )
+                    }
+                    break
+                case 400:
+                    print("API ::: \(data.message)")
+                    break
+                default:
+                    break
+                }
+            }
+        }
+    }
+
+    private func changeProfilePicture(parameters : Parameters){
+        let urlRequest = mainURL + "/Users/register.json"
+        Alamofire.request(urlRequest, method : .post, parameters : parameters, headers : self.headers).responseJSON { response in
+            debugPrint(response)
+            if let json = response.result.value {
+                let data = Responses(json: (json as! NSDictionary) as! [String : Any])
+                removeActivityIndicator(activityIndicator: self.myActivityIndicator)
+                switch(data.code){
+                case 200:
+                    let recivedData = data.data as! NSDictionary
+                    print(recivedData)
+                    DispatchQueue.main.async {
+                        let storyboard: UIStoryboard =   UIStoryboard (name: "Main", bundle: nil)
+                        let vc: UIViewController = storyboard.instantiateViewController(withIdentifier: "mainAPP") as UIViewController
+                        self.view.present(vc ,animated: true, completion: nil )
+                    }
+                    break
+                case 400:
+                    print("API ::: \(data.message)")
+                    break
+                default:
+                    break
+                }
+            }
+        }
+    }
+}

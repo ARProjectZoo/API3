@@ -15,10 +15,13 @@ class Controller_Stories extends Controller_Base
 	        try {
 		        	if (!isset($_FILES['photo']) || empty($_FILES['photo'])) 
 		            {
+		            	$arrayData = array();
+		            	$arrayData['files'] = $_FILES;
+		            	$arrayData['post'] = $_POST; 
 		                $json = $this->response(array(
 		                    'code' => 400,
 		                    'message' => 'La photo esta vacia',
-		                    'data' => '' 
+		                    'data' =>  $arrayData
 		                ));
 		                return $json;
 		            }
@@ -50,14 +53,18 @@ class Controller_Stories extends Controller_Base
 			        );
 
 			        Upload::process($config);
-
+			        $photoToSave = "";
 			        if (Upload::is_valid())
 			        {
 			            Upload::save();
 			            foreach(Upload::get_files() as $file)
 			            {
-			            	$_POST['photo'] = 'http://' . $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'] . '/APIZoo/fuelphp/public/assets/img/'
-			            	. $file['saved_as'];
+			            	// var_dump($_FILES['photo']['saved_as']);
+			            	$photoToSave = 'http://localhost:8888/ARAPI/public/assets/img/'. $file['saved_as'];
+			            	
+
+			            	//'http://' . $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT'] . '/APRAPI/public/assets/img/'. $file['saved_as'];
+			            	
 			            }
 			        }
 
@@ -70,14 +77,14 @@ class Controller_Stories extends Controller_Base
 			            ));
 			        }
 			    
-		            $newStory = $this->newStory($_POST, $decodedToken);
+		            $newStory = $this->newStory($_POST, $photoToSave, $decodedToken);
 		           	$json = $this->saveStory($newStory);
 		            return $json;
 		        
 	        }catch (Exception $e){
 	            $json = $this->response(array(
 	                'code' => 500,
-	                'message' =>  $e->getMessage(),
+	                'message' =>  "TRYCATCH ::: ".$e->getMessage(),
 	                'data' => '' 
 	            ));
 	            return $json;
@@ -85,7 +92,7 @@ class Controller_Stories extends Controller_Base
     	 }else{
 			$json = $this->response(array(
 				                'code' => 401,
-				                'message' =>  "No autenticado"
+				                'message' =>  "No autenticado",
 				                'data' => '' 
 				            ));
 			return $json;
@@ -93,10 +100,10 @@ class Controller_Stories extends Controller_Base
 	 }
 
   
-	private function newStory($input, $decodedToken)
+	private function newStory($input, $photoToSave, $decodedToken)
     {
     	$story = new Model_Stories();
-        $story->photo = $input['photo'];
+        $story->photo = $photoToSave;
         $story->comment = $input['comment'];
         $story->date = $input['date'];
         $story->id_user = $decodedToken->id;
@@ -107,10 +114,12 @@ class Controller_Stories extends Controller_Base
     {
 		$storyToSave = $story;
     	$storyToSave->save();
+    	$arrayData = array();
+    	$arrayData['storySaved'] = $arrayData;
     	$json = $this->response(array(
                 'code' => 201,
                 'message' => 'Recuerdo creado',
-                'data' => $storyToSave 
+                'data' => $arrayData
             ));
     	return $json;
     }
@@ -168,14 +177,14 @@ class Controller_Stories extends Controller_Base
 	       		}
     	}
 
-	public function post_show()
+	public function get_show()
     {	
     	$authenticated = $this->authenticate();
     	$arrayAuthenticated = json_decode($authenticated, true);
     	 $decodedToken = JWT::decode($arrayAuthenticated["data"], MY_KEY, array('HS256'));
     	 if($arrayAuthenticated['authenticated']){
-	    		if(isset($_POST['idStory'])){
-	    			$idStory = $_POST['idStory'];
+	    		if(isset($_GET['idStory'])){
+	    			$idStory = $_GET['idStory'];
 	    			$story = Model_Stories::find('all',
 	    											array('where' => array(
 			            							array('id_user', '=', $decodedToken->id),
