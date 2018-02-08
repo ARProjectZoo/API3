@@ -6,9 +6,6 @@ return array(
     array(
       'default' => 
       array(
-        0 => '001_Roles',
-        1 => '002_Users',
-        2 => '003_Stories',
       ),
     ),
     'module' => 
