@@ -46,7 +46,7 @@ class Model_Users extends Orm\Model
         )
     );
     protected static $_has_many = array(
-    'comments' => array(
+    'animals' => array(
         'key_from' => 'id',
         'model_to' => 'Model_Animals',
         'key_to' => 'id_user',
@@ -55,27 +55,9 @@ class Model_Users extends Orm\Model
         )
     );
     protected static $_has_many = array(
-    'comments' => array(
+    'stories' => array(
         'key_from' => 'id',
         'model_to' => 'Model_Stories',
-        'key_to' => 'id_user',
-        'cascade_save' => true,
-        'cascade_delete' => false,
-        )
-    );
-    protected static $_has_many = array(
-    'comments' => array(
-        'key_from' => 'id',
-        'model_to' => 'Model_Type',
-        'key_to' => 'id_user',
-        'cascade_save' => true,
-        'cascade_delete' => false,
-        )
-    );
-    protected static $_has_many = array(
-    'comments' => array(
-        'key_from' => 'id',
-        'model_to' => 'Model_Continent',
         'key_to' => 'id_user',
         'cascade_save' => true,
         'cascade_delete' => false,

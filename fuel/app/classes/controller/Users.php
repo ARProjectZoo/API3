@@ -252,10 +252,34 @@ class Controller_Users extends Controller_Base
 			        }
 			    
 		         //FALTA AQUI GUARDAR LOS CAMBIOS DEL PICTURE PROFILE DEL USER. Y EL MENSAJE 200
+			        $newProfilePhoto = $_POST['newPhoto'];
+					if(isset($newProfilePhoto)){
+						if(!empty($newProfilePhoto)){
+								$userTochange = Model_Users::find($decodedToken->id);
+								$userTochange ->profilePicture = $this->encode($newProfilePhoto);
+								$userTochange -> save();
+
+									$newProfilePhoto = $userTochange->profilePicture;
+				            		$password = $userTochange->password;
+				            		$id = $userTochange->id;
+				            		$email = $userTochange->email;
+				            		$id_role = $userTochange->id_role;
+
+								$token = $this->encodeToken($userName, $password, $id, $email, $id_role);
+								$arrayData = array();
+			               		$arrayData['token'] = $token;
+			               		return $this->respuesta(200, 'Foto modificada correctamente', $arrayData);
+					    	
+				    	}else{
+				    		return $this->respuesta(400, 'Foto vacia', "");
+				        }
+					}else{
+					return $this->respuesta(400, 'Campos vacios', "");
+				}
 		        
 	        }catch (Exception $e){
 	        	return $this->respuesta(500, $e->getMessage(),'');
-			}      
+		  }      
     	 }else{
     	 	return $this->respuesta(401, 'No autenticado','');
      	}
